@@ -1,12 +1,5 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
-```{r echo=FALSE}
-options(scipen = 1, digits = 2)
-```
+# Reproducible Research: Peer Assessment 1
+
 This assignment makes use of data from a personal activity monitoring device.
 The dataset records the total number of steps taken by an anonymous individual
 at 5 minute intervals throughout the day and was collected during October and
@@ -21,7 +14,8 @@ in the working directory as activity.csv.
 
 After loading the dataset into a dataframe, it was pre-proceessed to ensure
 the date information was available in date format.
-```{r echo = TRUE}
+
+```r
 data <- read.table("activity.csv", header = TRUE, sep = ",")
 data$date <- as.Date(data$date)
 ```
@@ -32,7 +26,8 @@ interval, a significant number of interval readings are missing and are coded
 as NA. The initial analysis of the total number of steps taken per day ignores
 these missing values. The following figure shows a histogram of the total
 number of steps taken each day.
-```{r echo = TRUE}
+
+```r
 # calculate total number of steps per day; ignore missing values
 totalStepsByDate <- aggregate(data$steps, by = list(date = data$date), FUN = sum, na.rm = TRUE)
 colnames(totalStepsByDate)[2] <- 'totalSteps'
@@ -42,21 +37,37 @@ hist(totalStepsByDate$totalSteps,
      col = "Red",
      main = "Steps per day (ignoring missing values)",
      xlab = "Total number of steps per day")
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
+
+```r
 # calculate mean and median total number of steps taken per day
 meanSteps <- mean(totalStepsByDate$totalSteps)
 medianSteps <- median(totalStepsByDate$totalSteps)
 meanSteps
+```
+
+```
+## [1] 9354
+```
+
+```r
 medianSteps
 ```
 
-The mean of the total number of steps taken per day is `r meanSteps`, while the
-median is `r medianSteps`.
+```
+## [1] 10395
+```
+
+The mean of the total number of steps taken per day is 9354.23, while the
+median is 10395.
 
 ## What is the average daily activity pattern?
 The following time series plot shows the average number of steps taken per time
 interval, when averages across all days.
-```{r echo = TRUE}
+
+```r
 # calculate average number of steps taken per interval; ignore missing values
 meanStepsByInterval <- aggregate(data$steps, by = list(interval = data$interval), FUN=mean, na.rm = TRUE)
 colnames(meanStepsByInterval)[2] <- 'meanSteps'
@@ -67,29 +78,43 @@ with(meanStepsByInterval, plot(interval, meanSteps,
                 main = "Average number of steps taken per interval",
                 xlab = "5-minute interval",
                 ylab = "Number of steps"))
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+
+```r
 # find 5-minute interval with maximum number of steps on average
 sortedMeanSteps <- meanStepsByInterval[order(-meanStepsByInterval$meanSteps), ]
 maxInterval <- sortedMeanSteps$interval[1]
 maxInterval
 ```
+
+```
+## [1] 835
+```
 The 5-minute interval which, on average across all the days in the dataset
-contains the greatest number of steps is `r maxInterval`.
+contains the greatest number of steps is 835.
 
 ## Imputing missing values
-```{r echo = TRUE}
+
+```r
 # calculate and report the total number of missing values in the dataset
 # (i.e. the total number of rows with NAs)
 completeRows <- complete.cases(data)
 incompleteTotal <- sum(!completeRows)
 incompleteTotal
 ```
-The total number of rows with missing data is `r incompleteTotal`.
+
+```
+## [1] 2304
+```
+The total number of rows with missing data is 2304.
 
 For the purposes of the rest of this anaylsis, the values for days with missing
 intervals have been filled in using the mean number of steps calculated for
 that interval over the remaining days.
-```{r echo = TRUE}
+
+```r
 # create new dataset with the missing data filled in
 completeData <- data
 completeData <- merge(completeData, meanStepsByInterval, by = "interval")
@@ -98,7 +123,8 @@ completeData$steps[is.na(completeData$steps)] <- completeData$meanSteps[is.na(co
 The following figure shows a histogram of the total number of steps taken each
 day, once the dataset has been post-processed to impute appropriate values for
 those intervals with missing data.
-```{r echo = TRUE}
+
+```r
 # calculate total number of steps per day; with imputed missing values
 totalStepsByDate2 <- aggregate(completeData$steps, by = list(date = completeData$date), FUN = sum, na.rm = TRUE)
 colnames(totalStepsByDate2)[2] <- 'totalSteps'
@@ -108,16 +134,31 @@ hist(totalStepsByDate2$totalSteps,
      col = "Red",
      main = "Steps per day (with imputed missing values)",
      xlab = "Total number of steps per day")
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-7-1.png) 
+
+```r
 # calculate and report mean and median total number of steps taken per day
 meanSteps2 <- mean(totalStepsByDate2$totalSteps)
 medianSteps2 <- median(totalStepsByDate2$totalSteps)
 meanSteps2
+```
+
+```
+## [1] 10766
+```
+
+```r
 medianSteps2
 ```
+
+```
+## [1] 10766
+```
 Using the complete dataset with missing values filled in, the mean of the total
-number of steps taken per day is now `r meanSteps2`, while the median is now
-`r medianSteps2`. These compare with `r meanSteps` and `r medianSteps`
+number of steps taken per day is now 10766.19, while the median is now
+10766.19. These compare with 9354.23 and 10395
 respectively for the incomplete dataset. Imputing the missing values has resulted
 in a more evenly-distributed spread of values and has also resulted in the mean
 and the median being the same.
@@ -125,7 +166,8 @@ and the median being the same.
 ## Are there differences in activity patterns between weekdays and weekends?
 The final part of the analysis looks at whether there are differences in activity
 patterns between weekdays and weekends.
-```{r echo = TRUE}
+
+```r
 # add new 'weekday' factor variable to complete data set
 weekdaysList = c('Mon', 'Tue', 'Wed', 'Thu', 'Fri')
 completeData$day <- weekdays(completeData$date, abbreviate = TRUE)
@@ -155,6 +197,8 @@ with(weekendStepsByInterval, plot(interval, meanSteps,
                                   xlab = "5-minute interval",
                                   ylab = "Mean number of steps"))
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png) 
 
 As can be seen in this panel plot, activity during the week is skewed towards
 the 8-9am timeframe with a peak in excess of 200 steps per time interval (likely
